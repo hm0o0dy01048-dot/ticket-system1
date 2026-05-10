@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = ['.jpg','.jpeg','.png','.pdf','.doc','.docx','.xlsx','.txt'];
     const ext = path.extname(file.originalname).toLowerCase();
@@ -27,34 +27,43 @@ const upload = multer({
   }
 });
 
-router.post('/:ticketId', auth, upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'لم يتم رفع أي ملف' });
-  const db = req.app.locals.db;
-  const t = db.getTicket(req.params.ticketId);
-  if (!t) return res.status(404).json({ error: 'التذكرة غير موجودة' });
-  const att = db.addAttachment(req.params.ticketId, {
-    filename: req.file.filename,
-    originalname: req.file.originalname,
-    size: req.file.size,
-    uploadedBy: req.user.name,
-    uploadedAt: new Date().toISOString().slice(0,10)
-  });
-  res.json(att);
+router.post('/:ticketId', auth, upload.single('file'), async (req, res) => {
+  try {
+    const id = parseInt(req.params.ticketId);
+    if (isNaN(id)) return res.status(400).json({ error: 'معرف غير صحيح' });
+    if (!req.file) return res.status(400).json({ error: 'لم يتم رفع أي ملف' });
+    const db = req.app.locals.db;
+    const t = await db.getTicket(id);
+    if (!t) return res.status(404).json({ error: 'التذكرة غير موجودة' });
+    const att = await db.addAttachment(id, {
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      size: req.file.size,
+      uploadedBy: req.user.name,
+      uploadedAt: new Date().toISOString().slice(0,10)
+    });
+    res.json(att);
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/:ticketId', auth, (req, res) => {
-  const db = req.app.locals.db;
-  res.json(db.getAttachments(req.params.ticketId));
+router.get('/:ticketId', auth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.ticketId);
+    if (isNaN(id)) return res.status(400).json({ error: 'معرف غير صحيح' });
+    res.json(await req.app.locals.db.getAttachments(id));
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-router.delete('/:ticketId/:fileId', auth, (req, res) => {
-  const db = req.app.locals.db;
-  const att = db.deleteAttachment(req.params.ticketId, req.params.fileId);
-  if (att && att.filename) {
-    const fp = path.join(__dirname, '../uploads', att.filename);
-    if (fs.existsSync(fp)) fs.unlinkSync(fp);
-  }
-  res.json({ ok: true });
+router.delete('/:ticketId/:fileId', auth, async (req, res) => {
+  try {
+    const db = req.app.locals.db;
+    const att = await db.deleteAttachment(req.params.ticketId, req.params.fileId);
+    if (att?.filename) {
+      const fp = path.join(__dirname, '../uploads', att.filename);
+      if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    }
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 module.exports = router;
