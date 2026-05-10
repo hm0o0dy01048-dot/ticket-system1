@@ -38,8 +38,8 @@ async function initDB() {
       status TEXT DEFAULT 'جديدة',
       close_note TEXT DEFAULT '',
       closed_by TEXT DEFAULT '',
-      created_at DATE DEFAULT CURRENT_DATE,
-      updated_at DATE DEFAULT CURRENT_DATE
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS notifications (
@@ -160,10 +160,10 @@ async function initDB() {
       return r.rows[0];
     },
     async setReview(id) {
-      await query("UPDATE tickets SET status='قيد المراجعة',updated_at=CURRENT_DATE WHERE id=$1", [parseInt(id)]);
+      await query("UPDATE tickets SET status='قيد المراجعة',updated_at=NOW() WHERE id=$1", [parseInt(id)]);
     },
     async closeTicket(id, note, by) {
-      await query("UPDATE tickets SET status='مغلقة',close_note=$1,closed_by=$2,updated_at=CURRENT_DATE WHERE id=$3", [note, by, parseInt(id)]);
+      await query("UPDATE tickets SET status='مغلقة',close_note=$1,closed_by=$2,updated_at=NOW() WHERE id=$3", [note, by, parseInt(id)]);
       const r = await query('SELECT * FROM tickets WHERE id=$1', [parseInt(id)]);
       return r.rows[0];
     },
@@ -171,7 +171,7 @@ async function initDB() {
       await query('DELETE FROM tickets WHERE id=$1', [parseInt(id)]);
     },
     async editTicket(id, data) {
-      await query('UPDATE tickets SET title=$1,identity_number=$2,request_number=$3,description=$4,updated_at=CURRENT_DATE WHERE id=$5',
+      await query('UPDATE tickets SET title=$1,identity_number=$2,request_number=$3,description=$4,updated_at=NOW() WHERE id=$5',
         [data.title, data.identity_number, data.request_number||'', data.description, parseInt(id)]);
     },
     async stats() {

@@ -1308,14 +1308,17 @@ function fmtDateTime(d) {
   if (!d) return '';
   try {
     const date = new Date(d);
-    if (isNaN(date)) return d;
+    if (isNaN(date)) return String(d).slice(0,10);
+    // Use local timezone automatically
     const y = date.getFullYear();
     const m = String(date.getMonth()+1).padStart(2,'0');
     const day = String(date.getDate()).padStart(2,'0');
     const h = String(date.getHours()).padStart(2,'0');
     const min = String(date.getMinutes()).padStart(2,'0');
+    // If time is midnight (00:00) it's a date-only field, show date only
+    if (h === '00' && min === '00') return y + '-' + m + '-' + day;
     return y + '-' + m + '-' + day + ' ' + h + ':' + min;
-  } catch { return d; }
+  } catch { return String(d).slice(0,10); }
 }
 
 document.addEventListener('keydown', e => {
@@ -1371,14 +1374,17 @@ function fmtDateTime(d) {
   if (!d) return '';
   try {
     const date = new Date(d);
-    if (isNaN(date)) return d;
+    if (isNaN(date)) return String(d).slice(0,10);
+    // Use local timezone automatically
     const y = date.getFullYear();
     const m = String(date.getMonth()+1).padStart(2,'0');
     const day = String(date.getDate()).padStart(2,'0');
     const h = String(date.getHours()).padStart(2,'0');
     const min = String(date.getMinutes()).padStart(2,'0');
+    // If time is midnight (00:00) it's a date-only field, show date only
+    if (h === '00' && min === '00') return y + '-' + m + '-' + day;
     return y + '-' + m + '-' + day + ' ' + h + ':' + min;
-  } catch { return d; }
+  } catch { return String(d).slice(0,10); }
 }
 
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.overlay:not(.hide)').forEach(el=>el.classList.add('hide')); });
