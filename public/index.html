@@ -528,7 +528,7 @@ function ticketCard(t, actions){
     '<div class="card-hd">' +
       '<div>' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">' + stBadge(t.status) +
-        '<span class="card-meta">' + t.ticket_number + ' · ' + fmtDate(t.created_at) + (t.updated_at&&fmtDate(t.updated_at)!==fmtDate(t.created_at)?' (محدّث: '+fmtDate(t.updated_at)+')':'') + (t.user_name?' · '+t.user_name:'') + '</span></div>' +
+        '<span class="card-meta">' + t.ticket_number + ' · ' + fmtDateTime(t.created_at) + (t.updated_at&&fmtDate(t.updated_at)!==fmtDate(t.created_at)?' (محدّث: '+fmtDate(t.updated_at)+')':'') + (t.user_name?' · '+t.user_name:'') + '</span></div>' +
         '<div class="card-title">' + t.title + '</div>' +
       '</div>' +
       '<div class="card-actions">' + detailBtn + editBtn + actions + '</div>' +
