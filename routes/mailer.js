@@ -3,17 +3,21 @@ const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT) || 587,
-  secure: false,
+  port: parseInt(process.env.SMTP_PORT) || 465,
+  secure: process.env.SMTP_SECURE === 'true' || parseInt(process.env.SMTP_PORT) === 465,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  tls: { rejectUnauthorized: false },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 async function sendEmail({ to, subject, html }) {
-  if (!process.env.SMTP_USER || process.env.NODE_ENV === 'development') {
-    console.log(`📧 [Email skipped - dev mode] To: ${to} | Subject: ${subject}`);
+  if (!process.env.SMTP_USER) {
+    console.log(`📧 [Email skipped - no SMTP config] To: ${to}`);
     return { skipped: true };
   }
   try {
@@ -21,6 +25,7 @@ async function sendEmail({ to, subject, html }) {
       from: `"نظام التذاكر" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
       to, subject, html,
     });
+    console.log(`📧 Email sent to ${to}: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
     console.error('Email error:', err.message);
@@ -28,7 +33,7 @@ async function sendEmail({ to, subject, html }) {
   }
 }
 
-function ticketEmail({ userName, ticketNumber, title, action, note, link }) {
+function ticketEmail({ userName, ticketNumber, title, action, note }) {
   const actionText = {
     new: 'تم إنشاء تذكرة جديدة',
     closed: 'تم إغلاق التذكرة',
@@ -49,7 +54,6 @@ function ticketEmail({ userName, ticketNumber, title, action, note, link }) {
         <div style="margin-top:6px"><strong>العنوان:</strong> ${title}</div>
         ${note ? `<div style="margin-top:6px"><strong>ملاحظة:</strong> ${note}</div>` : ''}
       </div>
-      ${link ? `<a href="${link}" style="display:inline-block;background:#1B6B1B;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;margin-top:10px">عرض التذكرة</a>` : ''}
     </div>
     <p style="text-align:center;color:#999;font-size:12px;margin-top:16px">نظام تذاكر الدعم الفني</p>
   </div>`;
