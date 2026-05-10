@@ -528,7 +528,7 @@ function ticketCard(t, actions){
     '<div class="card-hd">' +
       '<div>' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px">' + stBadge(t.status) +
-        '<span class="card-meta">' + t.ticket_number + ' · ' + (t.created_at||'') + (t.updated_at&&t.updated_at!==t.created_at?' (محدّث: '+t.updated_at+')':'') + (t.user_name?' · '+t.user_name:'') + '</span></div>' +
+        '<span class="card-meta">' + t.ticket_number + ' · ' + fmtDate(t.created_at) + (t.updated_at&&fmtDate(t.updated_at)!==fmtDate(t.created_at)?' (محدّث: '+fmtDate(t.updated_at)+')':'') + (t.user_name?' · '+t.user_name:'') + '</span></div>' +
         '<div class="card-title">' + t.title + '</div>' +
       '</div>' +
       '<div class="card-actions">' + detailBtn + editBtn + actions + '</div>' +
@@ -1039,7 +1039,7 @@ async function loadComments() {
   if (!list.length) { el.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:13px">لا توجد تعليقات بعد</div>'; return; }
   el.innerHTML = list.map(c =>
     '<div class="comment-item">' +
-    '<div class="comment-author"><strong>' + c.author + '</strong><span class="rb ' + getRoleClass(c.role) + '" style="font-size:10px;padding:2px 7px">' + (roleLabel[c.role]||c.role) + '</span><span>' + c.created_at + '</span></div>' +
+    '<div class="comment-author"><strong>' + c.author + '</strong><span class="rb ' + getRoleClass(c.role) + '" style="font-size:10px;padding:2px 7px">' + (roleLabel[c.role]||c.role) + '</span><span>' + fmtDateTime(c.created_at) + '</span></div>' +
     '<div class="comment-text">' + c.text + '</div></div>'
   ).join('');
   el.scrollTop = el.scrollHeight;
@@ -1291,6 +1291,33 @@ document.addEventListener('change', function(e){
   }
 });
 
+
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    const date = new Date(d);
+    if (isNaN(date)) return d;
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + day;
+  } catch { return d; }
+}
+
+function fmtDateTime(d) {
+  if (!d) return '';
+  try {
+    const date = new Date(d);
+    if (isNaN(date)) return d;
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    const h = String(date.getHours()).padStart(2,'0');
+    const min = String(date.getMinutes()).padStart(2,'0');
+    return y + '-' + m + '-' + day + ' ' + h + ':' + min;
+  } catch { return d; }
+}
+
 document.addEventListener('keydown', e => {
   if((e.ctrlKey||e.metaKey) && e.key==='k'){ e.preventDefault(); openSearch(); }
 });
@@ -1326,6 +1353,33 @@ document.addEventListener('change', function(e){
     });
   }
 });
+
+
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    const date = new Date(d);
+    if (isNaN(date)) return d;
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + day;
+  } catch { return d; }
+}
+
+function fmtDateTime(d) {
+  if (!d) return '';
+  try {
+    const date = new Date(d);
+    if (isNaN(date)) return d;
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    const h = String(date.getHours()).padStart(2,'0');
+    const min = String(date.getMinutes()).padStart(2,'0');
+    return y + '-' + m + '-' + day + ' ' + h + ':' + min;
+  } catch { return d; }
+}
 
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.overlay:not(.hide)').forEach(el=>el.classList.add('hide')); });
 </script>
