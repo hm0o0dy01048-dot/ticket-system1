@@ -9,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── Security middleware ────────────────────────────────────
+app.set('trust proxy', 1); // Required for rate limiting behind Render's proxy
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 

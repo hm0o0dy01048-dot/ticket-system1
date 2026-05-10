@@ -42,7 +42,7 @@ async function createTicket(req, res, force=false) {
   const db = req.app.locals.db;
 
   if (!force) {
-    const allT = db.allTickets();
+    const allT = await db.allTickets();
     const dupByTitle = allT.filter(t => t.title===title && t.status!=='مغلقة');
     const dupByIdentity = allT.filter(t => t.identity_number===identity_number && t.status!=='مغلقة');
     if (dupByTitle.length>0) return res.status(409).json({ error:'يوجد تذكرة مفتوحة بنفس رقم التذكرة', type:'duplicate_title', duplicates: dupByTitle.map(t=>({ticket_number:t.ticket_number,title:t.title,status:t.status,created_at:t.created_at})) });
